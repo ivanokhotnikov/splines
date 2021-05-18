@@ -1,2 +1,4 @@
 .gitignore
 run_splines.py
+__pycache__/*
+test/__pycache__/*
