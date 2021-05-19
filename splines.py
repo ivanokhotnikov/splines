@@ -118,12 +118,30 @@ FUNDAMENTAL_DEVIATIONS = {
 
 
 class Splines:
-    def __init__(self, spec, length):
+    """
+    A splines class
+
+    Attributes
+    ----------
+    spec: str
+        A formatted string according to the desgnation section in section 12.3 ISO 4156-1:2005.
+    length: float
+        The splines length, default None.
+    
+    Methods
+    -------
+    calculate_spline_sizes()
+        Calculates the spline sizes to the given specification
+    print_drawing_data()
+        Prints the list of sizes required on the splined component drawing.
+    """
+    def __init__(self, spec: str, length=None):
         self.spec = spec
         self.length = length
         self.calculate_spline_sizes()
 
     def calculate_spline_sizes(self):
+        """Calculates the sizes according to the methodology in ISO 4156:1-2001, stores the key sizes in the class attributes."""
         spec_list = [
             i for i in self.spec.split() if i not in ('x', '-', 'ISO', '4156')
         ]
@@ -338,6 +356,7 @@ class Splines:
                     radians(alphaImin)) - self.int_pin_dia
 
     def print_drawing_data(self):
+        """Prints out the drawing data according to section 12.4 in ISO 4156:1-2001"""
         if self.spline_type == 'INT':
             print(
                 f'{self.spec}',
