@@ -1,6 +1,7 @@
 from math import ceil, cos, sin, tan, pi, radians, sqrt, degrees
 from renard import R40, find_greater_than_or_equal
 
+# See table 5 ISO 4156-1:2005
 FUNDAMENTAL_DEVIATIONS = {
     range(1, 4): {
         'd': -20,
@@ -113,6 +114,70 @@ FUNDAMENTAL_DEVIATIONS = {
         'f': -86,
         'h': 0,
         'H': 0,
+    },
+}
+
+# See table 11 ISO 4156-1:2005
+MAJOR_MINOR_DIA_TOLERANCES = {
+    range(1, 4): {
+        10: 40
+    },
+    range(4, 7): {
+        10: 48,
+        11: 75
+    },
+    range(7, 11): {
+        10: 58,
+        11: 90
+    },
+    range(11, 19): {
+        10: 70,
+        11: 110,
+        12: 180
+    },
+    range(19, 31): {
+        10: 84,
+        11: 130,
+        12: 210
+    },
+    range(31, 51): {
+        10: 100,
+        11: 160,
+        12: 250
+    },
+    range(51, 81): {
+        10: 120,
+        11: 190,
+        12: 300
+    },
+    range(81, 121): {
+        11: 200,
+        12: 350
+    },
+    range(121, 181): {
+        11: 250,
+        12: 400
+    },
+    range(181, 251): {
+        12: 460
+    },
+    range(251, 316): {
+        12: 520
+    },
+    range(316, 401): {
+        12: 570
+    },
+    range(401, 501): {
+        12: 630
+    },
+    range(501, 631): {
+        12: 700
+    },
+    range(631, 801): {
+        12: 800
+    },
+    range(801, 1001): {
+        12: 900
     },
 }
 
@@ -237,21 +302,21 @@ class Splines:
                     self.teeth + 1) + fund_deviation_max_major_ext / tan(
                         radians(self.pressure_angle))
                 if root == 'flat':
-                    max_minor_ext_dia = self.module * (
+                    self.max_minor_ext_dia = self.module * (
                         self.teeth - 1.5) + fund_deviation / tan(
                             radians(self.pressure_angle))
                     self.ext_root_rad = .2 * self.module
                 elif root == 'fillet':
-                    max_minor_ext_dia = self.module * (
+                    self.max_minor_ext_dia = self.module * (
                         self.teeth - 1.8) + fund_deviation / tan(
                             radians(self.pressure_angle))
                     self.ext_root_rad = .4 * self.module
             elif self.spline_type == 'INT':
                 if root == 'flat':
-                    min_major_int_dia = self.module * (self.teeth + 1.5)
+                    self.min_major_int_dia = self.module * (self.teeth + 1.5)
                     self.int_root_rad = .2 * self.module
                 elif root == 'fillet':
-                    min_major_int_dia = self.module * (self.teeth + 1.8)
+                    self.min_major_int_dia = self.module * (self.teeth + 1.8)
                     self.int_root_rad = .4 * self.module
         elif self.pressure_angle == 37.5:
             hs = .55 * self.module
@@ -259,12 +324,12 @@ class Splines:
                 self.max_major_ext_dia = self.module * (
                     self.teeth + 0.9) + fund_deviation_max_major_ext / tan(
                         radians(self.pressure_angle))
-                max_minor_ext_dia = self.module * (
+                self.max_minor_ext_dia = self.module * (
                     self.teeth - 1.4) + fund_deviation / tan(
                         radians(self.pressure_angle))
                 self.ext_root_rad = .3 * self.module
             elif self.spline_type == 'INT':
-                min_major_int_dia = self.module * (self.teeth + 1.4)
+                self.min_major_int_dia = self.module * (self.teeth + 1.4)
                 self.int_root_rad = .3 * self.module
         elif self.pressure_angle == 45:
             hs = .5 * self.module
@@ -272,22 +337,35 @@ class Splines:
                 self.max_major_ext_dia = self.module * (
                     self.teeth + 0.8) + fund_deviation_max_major_ext / tan(
                         radians(self.pressure_angle))
-                max_minor_ext_dia = self.module * (
+                self.max_minor_ext_dia = self.module * (
                     self.teeth - 1.2) + fund_deviation / tan(
                         radians(self.pressure_angle))
                 self.ext_root_rad = .25 * self.module
             elif self.spline_type == 'INT':
-                min_major_int_dia = self.module * (self.teeth + 1.2)
+                self.min_major_int_dia = self.module * (self.teeth + 1.2)
                 self.int_root_rad = .25 * self.module
 
-        self.max_form_ext_dia = 2 * sqrt(
+        self.max_form_dia = 2 * sqrt(
             (.5 * self.base_dia)**2 +
             (.5 * self.pitch_dia * sin(radians(self.pressure_angle)) -
              (hs - .5 * fund_deviation / tan(radians(self.pressure_angle))) /
              sin(radians(self.pressure_angle)))**2)
 
         if self.spline_type == 'EXT':
-            self.min_minor_ext_dia = max_minor_ext_dia - tot_dia_tol * 1e-3 / tan(
+            for diameters_range in MAJOR_MINOR_DIA_TOLERANCES:
+                if round(self.max_major_ext_dia) in diameters_range:
+                    if self.module <= 0.75:
+                        self.min_major_ext_dia = self.max_major_ext_dia - MAJOR_MINOR_DIA_TOLERANCES[
+                            diameters_range][10] * 1e-3
+                    elif self.module < 2:
+                        self.min_major_ext_dia = self.max_major_ext_dia - MAJOR_MINOR_DIA_TOLERANCES[
+                            diameters_range][11] * 1e-3
+                    elif self.module >= 2:
+                        self.min_major_ext_dia = self.max_major_ext_dia - MAJOR_MINOR_DIA_TOLERANCES[
+                            diameters_range][12] * 1e-3
+                    break
+
+            self.min_minor_ext_dia = self.max_minor_ext_dia - tot_dia_tol * 1e-3 / tan(
                 radians(self.pressure_angle))
             self.max_eff_thickness = basic_tooth_thickeness + fund_deviation
             self.max_act_thickness = self.max_eff_thickness - dev_allowance * 1e-3
@@ -322,8 +400,21 @@ class Splines:
                     radians(alphaEmin)) + self.ext_pin_dia
         elif self.spline_type == 'INT':
             self.min_form_int_dia = self.module * (self.teeth + 1) + 2 * cF
-            self.min_minor_int_dia = self.max_form_ext_dia + 2 * cF
-            self.max_major_int_dia = min_major_int_dia + tot_dia_tol * 1e-3 / tan(
+            self.min_minor_int_dia = self.max_form_dia + 2 * cF
+            for diameters_range in MAJOR_MINOR_DIA_TOLERANCES:
+                if round(self.min_minor_int_dia) in diameters_range:
+                    if self.module <= 0.75:
+                        self.max_minor_int_dia = self.min_minor_int_dia + MAJOR_MINOR_DIA_TOLERANCES[
+                            diameters_range][10] * 1e-3
+                    elif self.module < 2:
+                        self.max_minor_int_dia = self.min_minor_int_dia + MAJOR_MINOR_DIA_TOLERANCES[
+                            diameters_range][11] * 1e-3
+                    elif self.module >= 2:
+                        self.max_minor_int_dia = self.min_minor_int_dia + MAJOR_MINOR_DIA_TOLERANCES[
+                            diameters_range][12] * 1e-3
+                    break
+
+            self.max_major_int_dia = self.min_major_int_dia + tot_dia_tol * 1e-3 / tan(
                 radians(self.pressure_angle))
             self.min_eff_width = basic_space_width
             self.max_act_width = self.min_eff_width + self.tot_space_width_tol * 1e-3
@@ -365,9 +456,11 @@ class Splines:
                 f'Pressure angle {round(self.pressure_angle, ndigits=1)}',
                 f'Pitch diameter {round(self.pitch_dia, ndigits=4)}',
                 f'Base diameter {round(self.base_dia, ndigits=4)}',
-                f'Major diameter {round(self.max_major_int_dia, ndigits=2)}',
-                f'Form diameter {round(self.min_form_int_dia, ndigits=2)}',
-                f'Minor diameter {round(self.min_minor_int_dia, ndigits=2)}',
+                f'Min major diameter {round(self.min_major_int_dia, ndigits=3)}',
+                f'Max major diameter {round(self.max_major_int_dia, ndigits=3)}',
+                f'Min form diameter {round(self.min_form_int_dia, ndigits=3)}',
+                f'Min minor diameter {round(self.min_minor_int_dia, ndigits=3)}',
+                f'Max minor diameter {round(self.max_minor_int_dia, ndigits=3)}',
                 f'Max actual space width {round(self.max_act_width, ndigits=3)}',
                 f'Max effective space width {round(self.max_eff_width, ndigits=3)}',
                 f'Min actual space width {round(self.min_act_width, ndigits=3)}',
@@ -385,9 +478,11 @@ class Splines:
                 f'Pressure angle {round(self.pressure_angle, ndigits=1)}',
                 f'Pitch diameter {round(self.pitch_dia, ndigits=4)}',
                 f'Base diameter {round(self.base_dia, ndigits=4)}',
-                f'Major diameter {round(self.max_major_ext_dia, ndigits=2)}',
-                f'Form diameter {round(self.max_form_ext_dia, ndigits=2)}',
-                f'Minor diameter {round(self.min_minor_ext_dia, ndigits=2)}',
+                f'Max major diameter {round(self.max_major_ext_dia, ndigits=3)}',
+                f'Min major diameter {round(self.min_major_ext_dia, ndigits=3)}',
+                f'Max form diameter {round(self.max_form_dia, ndigits=3)}',
+                f'Min minor diameter {round(self.min_minor_ext_dia, ndigits=3)}',
+                f'Max minor diameter {round(self.max_minor_ext_dia, ndigits=3)}',
                 f'Max effective tooth thickness {round(self.max_eff_thickness, ndigits=3)}',
                 f'Max actual tooth thickness {round(self.max_act_thickness, ndigits=3)}',
                 f'Min effective tooth thickness {round(self.min_eff_thickness, ndigits=3)}',

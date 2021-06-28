@@ -84,7 +84,7 @@ class ExampleA4(unittest.TestCase):
         self.assertEqual(round(A4.max_major_ext_dia, ndigits=2), 26.00)
 
     def test_max_form_ext_dia(self):
-        self.assertEqual(round(A4.max_form_ext_dia, ndigits=2), 23.89)
+        self.assertEqual(round(A4.max_form_dia, ndigits=2), 23.89)
 
     def test_min_minor_ext_dia(self):
         self.assertEqual(round(A4.min_minor_ext_dia, ndigits=2), 23.26)
@@ -113,7 +113,7 @@ class ExampleA5(unittest.TestCase):
         self.assertEqual(round(A5.max_major_ext_dia, ndigits=2), 25.93)
 
     def test_max_form_ext_dia(self):
-        self.assertEqual(round(A5.max_form_ext_dia, ndigits=2), 23.83)
+        self.assertEqual(round(A5.max_form_dia, ndigits=2), 23.83)
 
     def test_min_minor_ext_dia(self):
         self.assertEqual(round(A5.min_minor_ext_dia, ndigits=2), 22.89)
@@ -142,7 +142,7 @@ class ExampleA6(unittest.TestCase):
         self.assertEqual(round(A6.max_major_ext_dia, ndigits=2), 26.00)
 
     def test_max_form_ext_dia(self):
-        self.assertEqual(round(A6.max_form_ext_dia, ndigits=2), 23.93)
+        self.assertEqual(round(A6.max_form_dia, ndigits=2), 23.93)
 
     def test_min_minor_ext_dia(self):
         self.assertEqual(round(A6.min_minor_ext_dia, ndigits=2), 23.31)
