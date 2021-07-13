@@ -251,6 +251,7 @@ allowances_class5 = {
 }
 
 involute = lambda alpha: tan(radians(alpha)) - radians(alpha)
+sevolute = lambda phi: 1 / cos(radians(phi)) - involute(phi)
 inverse_involute = lambda x: x**(1 / 3) / (.693357 + .192484 * x**(2 / 3))
 
 
@@ -470,8 +471,10 @@ class Splines:
                                 self.teeth +
                                 1.35) / self.diametral_pitch + 0.004
                         elif self.spline_fit == 'DIA':
-                            self.max_major_int_dia = (self.teeth +
+                            self.min_major_int_dia = (self.teeth +
                                                       1) / self.diametral_pitch
+                            self.max_major_int_dia = self.min_major_int_dia + round(
+                                (10 + 3 * self.pitch_dia) * 1e-4, ndigits=4)
                             self.min_corner_clearance = 0.12 / self.diametral_pitch
                             self.max_corner_clearance = 0.2 / self.diametral_pitch
                     elif self.spline_root == 'FILLET':
@@ -754,13 +757,13 @@ class Splines:
             teeth = int(teeth)
             stub_pitch = float(stub_pitch)
 
-    def print_drawing_data(self, units='metric'):
+    def print_drawing_data(self, units):
         """Prints out the drawing data according to section 12.4 in ISO 4156:1-2001"""
-        if units == 'metric':
-            units_coef = 1
-        elif units == 'imperial':
-            units_coef = 25.4
         if 'ISO' in self.spec:
+            if units == 'metric':
+                units_coef = 1
+            elif units == 'imperial':
+                units_coef = 1 / 25.4
             if self.spline_type == 'INT':
                 print(
                     f'{self.spec}',
@@ -791,8 +794,8 @@ class Splines:
                     f'Pressure angle {round(self.pressure_angle, ndigits=1)}',
                     f'Pitch diameter {round(self.pitch_dia*units_coef, ndigits=4)}',
                     f'Base diameter {round(self.base_dia*units_coef, ndigits=4)}',
-                    f'Max major diameter {round(self.max_major_ext_dia*units_coef, ndigits=3)}',
-                    f'Min major diameter {round(self.min_major_ext_dia*units_coef, ndigits=3)}',
+                    f'Max major diameter {round(self.max_major_ext_dia*units_coef, ndigits=4)}',
+                    f'Min major diameter {round(self.min_major_ext_dia*units_coef, ndigits=4)}',
                     f'Max form diameter {round(self.max_form_dia*units_coef, ndigits=3)}',
                     f'Min minor diameter {round(self.min_minor_ext_dia*units_coef, ndigits=3)}',
                     f'Max minor diameter {round(self.max_minor_ext_dia*units_coef, ndigits=3)}',
@@ -806,6 +809,11 @@ class Splines:
                     f'Fillet radius {round(self.ext_root_rad, ndigits=1)}\n',
                     sep='\n')
         elif 'ANSI' in self.spec:
+            if units == 'metric':
+                units_coef = 25.4
+            elif units == 'imperial':
+                units_coef = 1
+
             if self.spline_type == 'INT':
                 print(
                     f'{self.spec}',
@@ -814,11 +822,11 @@ class Splines:
                     f'Pressure angle {round(self.pressure_angle, ndigits=1)}',
                     f'Base diameter {round(self.base_dia*units_coef, ndigits=6)}',
                     f'Pitch diameter {round(self.pitch_dia*units_coef, ndigits=6)}',
-                    f'Max major diameter {round(self.max_major_int_dia*units_coef, ndigits=3)}',
-                    # f'Min major diameter {round(min_major_int_dia, ndigits=3)}',
+                    f'Max major diameter {round(self.max_major_int_dia*units_coef, ndigits=4)}',
+                    f'Min major diameter {round(self.min_major_int_dia*units_coef, ndigits=4)}',
                     f'Form diameter {round(self.form_dia*units_coef, ndigits=3)}',
-                    f'Min minor diameter {round(self.min_minor_int_dia*units_coef, ndigits=3)}',
-                    f'Max minor diameter {round(self.max_minor_int_dia*units_coef, ndigits=3)}',
+                    f'Min minor diameter {round(self.min_minor_int_dia*units_coef, ndigits=4)}',
+                    f'Max minor diameter {round(self.max_minor_int_dia*units_coef, ndigits=4)}',
                     f'Max actual space width {round(self.max_act_width*units_coef, ndigits=4)}',
                     # f'Max effective space width {round(max_eff_width, ndigits=4)}',
                     # f'Min actual space width {round(min_act_width, ndigits=4)}',
@@ -830,12 +838,12 @@ class Splines:
                     sep='\n')
                 if self.spline_fit == 'DIA':
                     print(
-                        f'Max corner clearance {round(self.max_corner_clearance, ndigits=3)}',
-                        f'Min corner clearance {round(self.min_corner_clearance, ndigits=3)}\n',
+                        f'Max corner clearance {round(self.max_corner_clearance*units_coef, ndigits=3)}',
+                        f'Min corner clearance {round(self.min_corner_clearance*units_coef, ndigits=3)}\n',
                         sep='\n')
                 if self.spline_root == 'FILLET':
                     print(
-                        f'Min fillet radius {round(self.min_fillet_radius, ndigits=4)}\n',
+                        f'Min fillet radius {round(self.min_fillet_radius*units_coef, ndigits=4)}\n',
                         sep='\n')
             elif self.spline_type == 'EXT':
                 print(
@@ -845,8 +853,8 @@ class Splines:
                     f'Pressure angle {round(self.pressure_angle, ndigits=1)}',
                     f'Base diameter {round(self.base_dia*units_coef, ndigits=6)}',
                     f'Pitch diameter {round(self.pitch_dia*units_coef, ndigits=6)}',
-                    f'Min major diameter {round(self.min_major_ext_dia*units_coef, ndigits=3)}',
-                    f'Max major diameter {round(self.max_major_ext_dia*units_coef, ndigits=3)}',
+                    f'Min major diameter {round(self.min_major_ext_dia*units_coef, ndigits=4)}',
+                    f'Max major diameter {round(self.max_major_ext_dia*units_coef, ndigits=4)}',
                     f'Form diameter {round(self.form_dia*units_coef, ndigits=3)}',
                     f'Min minor diameter {round(self.min_minor_ext_dia*units_coef, ndigits=3)}',
                     # f'Max minor diameter {round(max_minor_ext_dia, ndigits=3)}',
@@ -861,10 +869,10 @@ class Splines:
                     sep='\n')
                 if self.spline_fit == 'DIA':
                     print(
-                        f'Max chamfer height {round(self.max_major_dia_chamfer, ndigits=3)}',
-                        f'Min chamfer height {round(self.min_major_dia_chamfer, ndigits=3)}\n',
+                        f'Max chamfer height {round(self.max_major_dia_chamfer*units_coef, ndigits=3)}',
+                        f'Min chamfer height {round(self.min_major_dia_chamfer*units_coef, ndigits=3)}\n',
                         sep='\n')
                 if self.spline_root == 'FILLET':
                     print(
-                        f'Min fillet radius height {round(self.min_fillet_radius, ndigits=4)}\n',
+                        f'Min fillet radius height {round(self.min_fillet_radius*units_coef, ndigits=4)}\n',
                         sep='\n')
