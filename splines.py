@@ -406,7 +406,7 @@ class Splines:
                     elif self.spline_fit == 'DIA':
                         self.max_eff_thickness = 0.5 * self.circular_pitch - self.eff_clearance_dia_fit
                     if self.spline_root == 'FILLET':
-                        for pitch_range in min_minor_ext_dia_dict[
+                        for pitch_range in min_minor_dia_dict[
                                 self.spline_type][self.pressure_angle][
                                     self.spline_root]:
                             if self.diametral_pitch in pitch_range:
@@ -841,8 +841,7 @@ class Splines:
                         f'Max corner clearance {round(self.max_corner_clearance*units_coef, ndigits=3)}',
                         f'Min corner clearance {round(self.min_corner_clearance*units_coef, ndigits=3)}\n',
                         sep='\n')
-                if self.spline_root == 'FILLET':
-                    pass
+
             elif self.spline_type == 'EXT':
                 print(
                     f'{self.spec}',
@@ -870,5 +869,3 @@ class Splines:
                         f'Max chamfer height {round(self.max_major_dia_chamfer*units_coef, ndigits=3)}',
                         f'Min chamfer height {round(self.min_major_dia_chamfer*units_coef, ndigits=3)}\n',
                         sep='\n')
-                if self.spline_root == 'FILLET':
-                    pass
