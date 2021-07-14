@@ -315,7 +315,7 @@ class Splines:
                 self.total_tolerance = self.tolerances_class5
             elif self.tol_class == 6:
                 self.total_tolerance = 1.40 * self.tolerances_class5
-            elif tol_class == 7:
+            elif self.tol_class == 7:
                 self.total_tolerance = 2.00 * self.tolerances_class5
 
             # see table 2 ANSI B92.1-1996
@@ -373,7 +373,7 @@ class Splines:
                         radians(self.pressure_angle)),
                 },
             }
-            # see tble 107a ANSI B92.1-1996
+            # see table 107a ANSI B92.1-1996
             eff_clearance_dia_fit_dict = {
                 range(1, 4): lambda N: round(
                     (0.20 * N + 18) * 1e-4, ndigits=4),
@@ -751,11 +751,11 @@ class Splines:
                     radians(90 / self.teeth)) / cos(
                         radians(alphaImin)) - self.int_pin_dia
         elif 'BS' in self.spec:
-            spline_type, spline_root, spline_fit, diametral_pitch, stub_pitch, teeth, pressure_angle = spec_list
-            diametral_pitch = float(diametral_pitch)
-            pressure_angle = float(pressure_angle)
-            teeth = int(teeth)
-            stub_pitch = float(stub_pitch)
+            self.spline_type, self.spline_root, self.spline_fit, self.diametral_pitch, self.stub_pitch, self.teeth, self.pressure_angle = spec_list
+            self.diametral_pitch = float(self.diametral_pitch)
+            self.pressure_angle = float(self.pressure_angle)
+            self.teeth = int(self.teeth)
+            self.stub_pitch = float(self.stub_pitch)
 
     def print_drawing_data(self, units):
         """Prints out the drawing data according to section 12.4 in ISO 4156:1-2001"""
@@ -842,9 +842,7 @@ class Splines:
                         f'Min corner clearance {round(self.min_corner_clearance*units_coef, ndigits=3)}\n',
                         sep='\n')
                 if self.spline_root == 'FILLET':
-                    print(
-                        f'Min fillet radius {round(self.min_fillet_radius*units_coef, ndigits=4)}\n',
-                        sep='\n')
+                    pass
             elif self.spline_type == 'EXT':
                 print(
                     f'{self.spec}',
@@ -873,6 +871,4 @@ class Splines:
                         f'Min chamfer height {round(self.min_major_dia_chamfer*units_coef, ndigits=3)}\n',
                         sep='\n')
                 if self.spline_root == 'FILLET':
-                    print(
-                        f'Min fillet radius height {round(self.min_fillet_radius*units_coef, ndigits=4)}\n',
-                        sep='\n')
+                    pass
