@@ -14,6 +14,8 @@ A4 = Splines('EXT 25z x 1,0m x 30P x 4h - ISO 4156', None)
 A5 = Splines('EXT 25z x 1,0m x 30R x 6e - ISO 4156', None)
 A6 = Splines('EXT 25z x 1,0m x 30P x 5js - ISO 4156', None)
 
+B1 = Splines('EXT FLAT ROOT SIDE FIT 12/24 30T 30 CLASS 5 ANSI B92', None)
+
 
 class ExampleA2(unittest.TestCase):
     def test_pitch_dia(self):
@@ -158,6 +160,14 @@ class ExampleA6(unittest.TestCase):
 
     def test_min_act_thickness(self):
         self.assertEqual(round(A6.min_act_thickness, ndigits=3), 1.544)
+
+
+class ExampleB1(unittest.TestCase):
+    def test_pitch_dia(self):
+        self.assertEqual(round(B1.pitch_dia, ndigits=6), 2.500000)
+
+    def test_base_dia(self):
+        self.assertEqual(round(B1.base_dia, ndigits=6), 2.165064)
 
 
 if __name__ == '__main__':
