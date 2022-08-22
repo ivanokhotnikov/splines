@@ -273,13 +273,20 @@ class Splines:
     print_drawing_data()
         Prints the list of sizes required on the splined component drawing.
     """
+
     def __init__(self, spec: str, length=None):
         self.spec = spec
         self.length = length
         self.calculate_spline_sizes()
 
     def calculate_spline_sizes(self):
-        """Calculates the sizes according to the methodology either in ISO 4156:1-2001, or in , or ANSI B92, stores the key sizes in the class attributes."""
+        """
+        Calculates the sizes according to the methodology either in ISO 4156:1-2001, or in , or ANSI B92, stores the key sizes in the class attributes.
+        
+        Returns
+        -------
+        None
+        """
         spec_list = [
             i for i in re.split(
                 r'x| |/|-|ISO|4156|ANSI|B92|ROOT|FIT|BS|3550|CLASS', self.spec)
@@ -757,9 +764,22 @@ class Splines:
             self.teeth = int(self.teeth)
             self.stub_pitch = float(self.stub_pitch)
 
-    def print_drawing_data(self, units):
-        """Prints out the drawing data according to section 12.4 in ISO 4156:1-2001"""
+    def print_drawing_data(self, units=None):
+        """
+        Prints out the drawing data according to section 12.4 in ISO 4156:1-2001
+
+        Parameters
+        ----------
+        units : str
+            The units to print the data in.
+
+        Returns
+        -------
+        None
+        """
         if 'ISO' in self.spec:
+            if units == None:
+                units = 'metric'
             if units == 'metric':
                 units_coef = 1
             elif units == 'imperial':
@@ -809,6 +829,8 @@ class Splines:
                     f'Fillet radius {round(self.ext_root_rad, ndigits=1)}\n',
                     sep='\n')
         elif 'ANSI' in self.spec:
+            if units == None:
+                units = 'imperial'
             if units == 'metric':
                 units_coef = 25.4
             elif units == 'imperial':
