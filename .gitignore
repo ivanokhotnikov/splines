@@ -3,3 +3,4 @@ run_splines.py
 __pycache__/*
 test/__pycache__/*
 .vscode/
+venv/

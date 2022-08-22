@@ -262,7 +262,7 @@ class Splines:
     Attributes
     ----------
     spec: str
-        A formatted string according to the desgnation section in section 12.3 ISO 4156-1:2005.
+        A formatted string according to either the designation section in section 12.3 ISO 4156-1:2005, or ANSI B92.
     length: float
         The splines length, default None.
     
@@ -279,7 +279,7 @@ class Splines:
         self.calculate_spline_sizes()
 
     def calculate_spline_sizes(self):
-        """Calculates the sizes according to the methodology in ISO 4156:1-2001, stores the key sizes in the class attributes."""
+        """Calculates the sizes according to the methodology either in ISO 4156:1-2001, or in , or ANSI B92, stores the key sizes in the class attributes."""
         spec_list = [
             i for i in re.split(
                 r'x| |/|-|ISO|4156|ANSI|B92|ROOT|FIT|BS|3550|CLASS', self.spec)
